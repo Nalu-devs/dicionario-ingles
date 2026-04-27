@@ -111,4 +111,24 @@ document.getElementById('searchInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSearch();
 });
 
+document.getElementById('addWordForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const newEntry = {
+        word: document.getElementById('newWord').value.toLowerCase(),
+        pronunciation: document.getElementById('newPronunciation').value,
+        partOfSpeech: document.getElementById('newPartOfSpeech').value,
+        definition: document.getElementById('newDefinition').value,
+        example: document.getElementById('newExample').value,
+        translation: document.getElementById('newTranslation').value
+    };
+    
+    dictionary.push(newEntry);
+    
+    e.target.reset();
+    renderEntries(dictionary);
+    
+    alert('Word added successfully!');
+});
+
 renderEntries(dictionary);

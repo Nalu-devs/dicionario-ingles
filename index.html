@@ -29,7 +29,49 @@
         </div>
     </div>
 
-    <main id="entries">
+    <main>
+        <section class="add-word-section">
+            <h2>Add New Word</h2>
+            <form id="addWordForm">
+                <div class="form-group">
+                    <label for="newWord">Word</label>
+                    <input type="text" id="newWord" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPronunciation">Pronunciation (IPA)</label>
+                    <input type="text" id="newPronunciation" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPartOfSpeech">Part of Speech</label>
+                    <select id="newPartOfSpeech" required>
+                        <option value="noun">noun</option>
+                        <option value="verb">verb</option>
+                        <option value="adjective">adjective</option>
+                        <option value="adverb">adverb</option>
+                        <option value="exclamation">exclamation</option>
+                        <option value="preposition">preposition</option>
+                        <option value="conjunction">conjunction</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newDefinition">Definition</label>
+                    <textarea id="newDefinition" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="newExample">Example</label>
+                    <input type="text" id="newExample" required>
+                </div>
+                <div class="form-group">
+                    <label for="newTranslation">Translation (Portuguese)</label>
+                    <input type="text" id="newTranslation" required>
+                </div>
+                <button type="submit">Add Word</button>
+            </form>
+        </section>
+
+        <h2>Dictionary</h2>
+        <div id="entries">
+        </div>
     </main>
 
     <footer>
