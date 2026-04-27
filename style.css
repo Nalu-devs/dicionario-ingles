@@ -127,6 +127,48 @@ main {
     font-size: 1rem;
 }
 
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.play-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.play-btn:hover {
+    background: #001f4a;
+}
+
+.play-example {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+}
+
+.speed-select {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    background: white;
+}
+
 .part-of-speech {
     display: inline-block;
     background: #f0ede8;
