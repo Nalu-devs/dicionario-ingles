@@ -1,0 +1,190 @@
+:root {
+    --primary: #002f6c;
+    --accent: #d4a574;
+    --bg-light: #f8f6f3;
+    --text-dark: #1a1a1a;
+    --text-light: #5a5a5a;
+    --border: #e0dcd4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+header {
+    background: var(--primary);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.logo {
+    font-family: 'Libre Baskerville', serif;
+    color: white;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.logo span {
+    color: var(--accent);
+}
+
+nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+
+nav a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.search-container {
+    background: white;
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.search-box {
+    display: flex;
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.search-box button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.search-box button:hover {
+    background: #001f4a;
+}
+
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.entry {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.word-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.word {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.pronunciation {
+    font-style: italic;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.part-of-speech {
+    display: inline-block;
+    background: #f0ede8;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.definition {
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--accent);
+}
+
+.definition p {
+    margin-bottom: 0.5rem;
+}
+
+.example {
+    font-style: italic;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.translation {
+    background: #f0f4f8;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.translation::before {
+    content: "pt: ";
+    font-weight: 400;
+    color: var(--text-light);
+}
+
+footer {
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    .search-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+}

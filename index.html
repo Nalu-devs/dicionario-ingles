@@ -3,98 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dicionário inglês</title>
+    <title>English Dictionary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>Dicionario inglês</p>
-    <br>
-    <table border="1">
-        <tr>
-            <th>Word</th>
-            <th>Tradução</th>
-            <th>Pronuncia</th>
-        </tr>
-        <tr>
-            <td>Fullname</td>
-            <td>Nome completo</td>
-            <td>Fullneime</td>
-        </tr>
-        <tr>
-            <td>First name</td>
-            <td>Primeiro nome</td>
-            <td>Firsit neime</td>
-        </tr>
-        <tr>
-            <td>Middle name</td>
-            <td>Sobrenome</td>
-            <td>Miroul neime</td>
-        </tr>
-        <tr>
-            <td>Last name</td>
-            <td>Último nome</td>
-            <td>Lest neime</td>
-        </tr>
-        <tr>
-            <td>Hi</td>
-            <td>Oi</td>
-            <td>Rai</td>
-        </tr>
-        <tr>
-            <td>Hello</td>
-            <td>Olá</td>
-            <td>Relou</td>
-        </tr>
-        <tr>
-            <td>friend</td>
-            <td>Amigo</td>
-            <td>Friendi</td>
-        </tr>
-        <tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr>
-        <tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr><tr>
-            <td>Brother</td>
-            <td>Irmão</td>
-            <td>Broder</td>
-        </tr>
-    </table>
+    <header>
+        <div class="logo">English<span>Dictionary</span></div>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Browse</a>
+        <a href="#">Word of the Day</a>
+        <a href="#">Learn</a>
+        <a href="#">Thesaurus</a>
+    </nav>
+
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Enter a word...">
+            <button id="searchBtn">Search</button>
+        </div>
+    </div>
+
+    <main id="entries">
+    </main>
+
+    <footer>
+        <p>&copy; 2026 English Dictionary. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
