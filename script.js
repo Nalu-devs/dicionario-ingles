@@ -279,6 +279,44 @@ function saveDictionary(dict) {
     localStorage.setItem('userWords', JSON.stringify(dict));
 }
 
+function exportWords() {
+    const dataStr = JSON.stringify(userWords, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dictionary-words.json';
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function importWords(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (Array.isArray(imported)) {
+                imported.forEach(entry => {
+                    const exists = userWords.some(item => item.word.toLowerCase() === entry.word.toLowerCase());
+                    if (!exists) {
+                        entry.isUserAdded = true;
+                        userWords.push(entry);
+                    }
+                });
+                saveDictionary(userWords);
+                initDictionary();
+                alert('Words imported successfully!');
+            }
+        } catch (err) {
+            alert('Error importing file. Please check the file format.');
+        }
+    };
+    reader.readAsText(file);
+}
+
 let userWords = [];
 
 function loadUserWords() {
@@ -303,6 +341,7 @@ function addWord(entry) {
         alert('This word already exists in the dictionary.');
         return;
     }
+    entry.isUserAdded = true;
     userWords.push(entry);
     saveDictionary(userWords);
     initDictionary();
@@ -312,10 +351,12 @@ function createEntryElement(entry) {
     const exampleText = entry.example.replace(/"/g, '');
     const div = document.createElement('div');
     div.className = 'entry';
+    const deleteBtn = entry.isUserAdded ? `<button class="delete-btn" data-word="${escapeHtml(entry.word)}" title="Delete">&#10006;</button>` : '';
     div.innerHTML = `
         <div class="word-header">
             <span class="word">${escapeHtml(entry.word)}</span>
             <span class="pronunciation">${escapeHtml(entry.pronunciation)}</span>
+            ${deleteBtn}
         </div>
         <div class="audio-controls">
             <button class="play-btn" data-word="${escapeHtml(entry.word)}" title="Play">&#9654;</button>
@@ -427,6 +468,15 @@ document.addEventListener('click', (e) => {
         
         speakWord(word, rate);
     }
+    
+    if (e.target.classList.contains('delete-btn')) {
+        const word = e.target.dataset.word;
+        if (confirm(`Are you sure you want to delete "${word}"?`)) {
+            userWords = userWords.filter(item => item.word !== word);
+            saveDictionary(userWords);
+            initDictionary();
+        }
+    }
 });
 
 function speakWord(text, rate = 1) {
@@ -445,3 +495,16 @@ function speakWord(text, rate = 1) {
         alert('Your browser does not support text-to-speech.');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const exportBtn = document.getElementById('exportBtn');
+    const importFile = document.getElementById('importFile');
+    
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportWords);
+    }
+    
+    if (importFile) {
+        importFile.addEventListener('change', importWords);
+    }
+});
