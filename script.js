@@ -4,6 +4,14 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function highlightText(text, query) {
+    if (!query) return escapeHtml(text);
+    const escapedText = escapeHtml(text);
+    const escapedQuery = escapeHtml(query);
+    const regex = new RegExp(`(${escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escapedText.replace(regex, '<mark>$1</mark>');
+}
+
 const defaultDictionary = [
     {
         word: "apple",
@@ -317,6 +325,15 @@ function importWords(event) {
     reader.readAsText(file);
 }
 
+function clearAllWords() {
+    if (confirm('Are you sure you want to delete ALL user-added words? This action cannot be undone.')) {
+        userWords = [];
+        saveDictionary(userWords);
+        initDictionary();
+        alert('All user words have been deleted.');
+    }
+}
+
 let userWords = [];
 
 function loadUserWords() {
@@ -354,8 +371,8 @@ function createEntryElement(entry) {
     const deleteBtn = entry.isUserAdded ? `<button class="delete-btn" data-word="${escapeHtml(entry.word)}" title="Delete">&#10006;</button>` : '';
     div.innerHTML = `
         <div class="word-header">
-            <span class="word">${escapeHtml(entry.word)}</span>
-            <span class="pronunciation">${escapeHtml(entry.pronunciation)}</span>
+            <span class="word">${highlightText(entry.word, currentQuery)}</span>
+            <span class="pronunciation">${highlightText(entry.pronunciation, currentQuery)}</span>
             ${deleteBtn}
         </div>
         <div class="audio-controls">
@@ -366,15 +383,15 @@ function createEntryElement(entry) {
                 <option value="1.5">Fast</option>
             </select>
         </div>
-        <div class="part-of-speech">${escapeHtml(entry.partOfSpeech)}</div>
+        <div class="part-of-speech">${highlightText(entry.partOfSpeech, currentQuery)}</div>
         <div class="definition">
-            <p>${escapeHtml(entry.definition)}</p>
+            <p>${highlightText(entry.definition, currentQuery)}</p>
             <p class="example">
-                "${escapeHtml(entry.example)}"
+                "${highlightText(entry.example, currentQuery)}"
                 <button class="play-btn play-example" data-word="${escapeHtml(exampleText)}" title="Play example">&#9654;</button>
             </p>
         </div>
-        <div class="translation">${escapeHtml(entry.translation)}</div>
+        <div class="translation">${highlightText(entry.translation, currentQuery)}</div>
     `;
     return div;
 }
@@ -388,13 +405,15 @@ function renderEntries(entries) {
     });
 }
 
+let currentQuery = '';
+
 function filterEntries(query) {
-    const normalizedQuery = query.toLowerCase().trim();
-    if (!normalizedQuery) return dictionary;
+    currentQuery = query.toLowerCase().trim();
+    if (!currentQuery) return dictionary;
     return dictionary.filter(entry => 
-        entry.word.includes(normalizedQuery) || 
-        entry.translation.toLowerCase().includes(normalizedQuery) ||
-        entry.definition.toLowerCase().includes(normalizedQuery)
+        entry.word.includes(currentQuery) || 
+        entry.translation.toLowerCase().includes(currentQuery) ||
+        entry.definition.toLowerCase().includes(currentQuery)
     );
 }
 
@@ -499,6 +518,7 @@ function speakWord(text, rate = 1) {
 document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
+    const clearAllBtn = document.getElementById('clearAllBtn');
     
     if (exportBtn) {
         exportBtn.addEventListener('click', exportWords);
@@ -506,5 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (importFile) {
         importFile.addEventListener('change', importWords);
+    }
+    
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllWords);
     }
 });

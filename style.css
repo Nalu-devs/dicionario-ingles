@@ -395,9 +395,30 @@ footer {
     margin-top: 0.5rem;
 }
 
-#addWordForm button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.5);
+.btn:hover {
+    background: var(--accent);
+}
+
+mark {
+    background: yellow;
+    color: black;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.clear-all-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.clear-all-btn:hover {
+    background: #c82333;
 }
 
 @media (max-width: 600px) {
