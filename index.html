@@ -14,11 +14,23 @@
         <div class="logo">English<span>Dictionary</span></div>
     </header>
 
-<nav>
+    <nav>
         <a href="index.html">Home</a>
         <a href="dictionary.html">Dictionary</a>
         <a href="add.html">Add Word</a>
     </nav>
+
+    <div id="loginSection" class="login-container">
+        <h3>Login</h3>
+        <input type="text" id="username" placeholder="Username" class="login-input">
+        <input type="password" id="password" placeholder="Password" class="login-input">
+        <button id="loginBtn" class="btn">Login</button>
+    </div>
+
+    <div id="userInfo" class="user-info" style="display: none;">
+        <span>Welcome, <span class="username"></span>!</span>
+        <button id="logoutBtn" class="btn clear-all-btn">Logout</button>
+    </div>
 
     <div class="search-container">
         <div class="search-box">

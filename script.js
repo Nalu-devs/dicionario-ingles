@@ -470,6 +470,51 @@ function clearAllWords() {
     }
 }
 
+let currentUser = null;
+
+function login(username, password) {
+    if (username && password) {
+        currentUser = { username: username };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateLoginUI();
+        return true;
+    }
+    return false;
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    updateLoginUI();
+}
+
+function checkLogin() {
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+        currentUser = JSON.parse(stored);
+    }
+    updateLoginUI();
+}
+
+function updateLoginUI() {
+    const loginSection = document.getElementById('loginSection');
+    const userInfo = document.getElementById('userInfo');
+    const addWordLink = document.querySelector('a[href="add.html"]');
+    
+    if (currentUser) {
+        if (loginSection) loginSection.style.display = 'none';
+        if (userInfo) {
+            userInfo.style.display = 'block';
+            userInfo.querySelector('.username').textContent = currentUser.username;
+        }
+        if (addWordLink) addWordLink.style.display = 'inline';
+    } else {
+        if (loginSection) loginSection.style.display = 'block';
+        if (userInfo) userInfo.style.display = 'none';
+        if (addWordLink) addWordLink.style.display = 'none';
+    }
+}
+
 let userWords = [];
 
 function loadUserWords() {
@@ -652,9 +697,13 @@ function speakWord(text, rate = 1) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    checkLogin();
+    
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
     const clearAllBtn = document.getElementById('clearAllBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     
     if (exportBtn) {
         exportBtn.addEventListener('click', exportWords);
@@ -666,5 +715,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', clearAllWords);
+    }
+    
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (login(username, password)) {
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                alert('Please enter username and password.');
+            }
+        });
+    }
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
     }
 });
