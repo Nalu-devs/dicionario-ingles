@@ -1,3 +1,9 @@
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 const defaultDictionary = [
     {
         word: "apple",
@@ -292,6 +298,11 @@ function initDictionary() {
 }
 
 function addWord(entry) {
+    const exists = dictionary.some(item => item.word.toLowerCase() === entry.word.toLowerCase());
+    if (exists) {
+        alert('This word already exists in the dictionary.');
+        return;
+    }
     userWords.push(entry);
     saveDictionary(userWords);
     initDictionary();
@@ -303,26 +314,26 @@ function createEntryElement(entry) {
     div.className = 'entry';
     div.innerHTML = `
         <div class="word-header">
-            <span class="word">${entry.word}</span>
-            <span class="pronunciation">${entry.pronunciation}</span>
+            <span class="word">${escapeHtml(entry.word)}</span>
+            <span class="pronunciation">${escapeHtml(entry.pronunciation)}</span>
         </div>
         <div class="audio-controls">
-            <button class="play-btn" data-word="${entry.word}" title="Play">&#9654;</button>
+            <button class="play-btn" data-word="${escapeHtml(entry.word)}" title="Play">&#9654;</button>
             <select class="speed-select">
                 <option value="0.5">Slow</option>
                 <option value="1" selected>Normal</option>
                 <option value="1.5">Fast</option>
             </select>
         </div>
-        <div class="part-of-speech">${entry.partOfSpeech}</div>
+        <div class="part-of-speech">${escapeHtml(entry.partOfSpeech)}</div>
         <div class="definition">
-            <p>${entry.definition}</p>
+            <p>${escapeHtml(entry.definition)}</p>
             <p class="example">
-                "${entry.example}"
-                <button class="play-btn play-example" data-word="${exampleText}" title="Play example">&#9654;</button>
+                "${escapeHtml(entry.example)}"
+                <button class="play-btn play-example" data-word="${escapeHtml(exampleText)}" title="Play example">&#9654;</button>
             </p>
         </div>
-        <div class="translation">${entry.translation}</div>
+        <div class="translation">${escapeHtml(entry.translation)}</div>
     `;
     return div;
 }
@@ -419,7 +430,7 @@ document.addEventListener('click', (e) => {
 });
 
 function speakWord(text, rate = 1) {
-    if ('speechSynthesis' in window {
+    if ('speechSynthesis' in window) {
         speechSynthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);

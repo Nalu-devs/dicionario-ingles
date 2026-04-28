@@ -97,6 +97,10 @@ p {
     display: none;
 }
 
+footer p {
+    display: block;
+}
+
 .search-container {
     background: var(--bg-card);
     max-width: 700px;
