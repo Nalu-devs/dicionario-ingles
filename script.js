@@ -419,7 +419,7 @@ document.addEventListener('click', (e) => {
 });
 
 function speakWord(text, rate = 1) {
-    if ('speechSynthesis' in window) {
+    if ('speechSynthesis' in window {
         speechSynthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);
