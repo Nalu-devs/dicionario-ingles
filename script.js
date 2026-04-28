@@ -341,7 +341,8 @@ function filterEntries(query) {
     if (!normalizedQuery) return dictionary;
     return dictionary.filter(entry => 
         entry.word.includes(normalizedQuery) || 
-        entry.translation.toLowerCase().includes(normalizedQuery)
+        entry.translation.toLowerCase().includes(normalizedQuery) ||
+        entry.definition.toLowerCase().includes(normalizedQuery)
     );
 }
 
@@ -349,6 +350,14 @@ function handleSearch() {
     const query = document.getElementById('searchInput').value;
     const filtered = filterEntries(query);
     renderEntries(filtered);
+    
+    const container = document.getElementById('entries');
+    if (container && query.trim()) {
+        const count = document.createElement('p');
+        count.className = 'result-count';
+        count.textContent = `Found ${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+        container.insertBefore(count, container.firstChild);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
