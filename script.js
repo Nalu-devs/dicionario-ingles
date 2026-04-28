@@ -276,6 +276,142 @@ const defaultDictionary = [
         definition: "An affirmative response.",
         example: "Yes, I would like some coffee.",
         translation: "Sim"
+    },
+    {
+        word: "car",
+        pronunciation: "/kɑːr/",
+        partOfSpeech: "noun",
+        definition: "A road vehicle with four wheels.",
+        example: "I drive my car to work.",
+        translation: "Carro"
+    },
+    {
+        word: "house",
+        pronunciation: "/haʊs/",
+        partOfSpeech: "noun",
+        definition: "A building for human habitation.",
+        example: "They bought a new house.",
+        translation: "Casa"
+    },
+    {
+        word: "friend",
+        pronunciation: "/frend/",
+        partOfSpeech: "noun",
+        definition: "A person with whom one has a bond of mutual affection.",
+        example: "She is my best friend.",
+        translation: "Amigo"
+    },
+    {
+        word: "time",
+        pronunciation: "/taɪm/",
+        partOfSpeech: "noun",
+        definition: "The indefinite continued progress of existence.",
+        example: "Time flies when you're having fun.",
+        translation: "Tempo"
+    },
+    {
+        word: "day",
+        pronunciation: "/deɪ/",
+        partOfSpeech: "noun",
+        definition: "A period of 24 hours.",
+        example: "Have a great day!",
+        translation: "Dia"
+    },
+    {
+        word: "good",
+        pronunciation: "/ɡʊd/",
+        partOfSpeech: "adjective",
+        definition: "To be desired or approved of.",
+        example: "This is a good book.",
+        translation: "Bom"
+    },
+    {
+        word: "big",
+        pronunciation: "/bɪɡ/",
+        partOfSpeech: "adjective",
+        definition: "Of considerable size, extent, or intensity.",
+        example: "That's a big dog.",
+        translation: "Grande"
+    },
+    {
+        word: "small",
+        pronunciation: "/smɔːl/",
+        partOfSpeech: "adjective",
+        definition: "Of a size that is less than normal or usual.",
+        example: "The room is too small.",
+        translation: "Pequeno"
+    },
+    {
+        word: "happy",
+        pronunciation: "/ˈhæp.i/",
+        partOfSpeech: "adjective",
+        definition: "Feeling or showing pleasure or contentment.",
+        example: "I am happy to see you.",
+        translation: "Feliz"
+    },
+    {
+        word: "sad",
+        pronunciation: "/sæd/",
+        partOfSpeech: "adjective",
+        definition: "Feeling or showing sorrow.",
+        example: "She feels sad today.",
+        translation: "Triste"
+    },
+    {
+        word: "run",
+        pronunciation: "/rʌn/",
+        partOfSpeech: "verb",
+        definition: "Move at a speed faster than a walk.",
+        example: "I run every morning.",
+        translation: "Correr"
+    },
+    {
+        word: "eat",
+        pronunciation: "/iːt/",
+        partOfSpeech: "verb",
+        definition: "Put food into the mouth and swallow it.",
+        example: "Let's eat dinner together.",
+        translation: "Comer"
+    },
+    {
+        word: "sleep",
+        pronunciation: "/sliːp/",
+        partOfSpeech: "verb",
+        definition: "A condition of body and mind.",
+        example: "I need to sleep early today.",
+        translation: "Dormir"
+    },
+    {
+        word: "read",
+        pronunciation: "/riːd/",
+        partOfSpeech: "verb",
+        definition: "Look at and comprehend the meaning of written or printed matter.",
+        example: "I love to read books.",
+        translation: "Ler"
+    },
+    {
+        word: "write",
+        pronunciation: "/raɪt/",
+        partOfSpeech: "verb",
+        definition: "Mark letters, words, or other symbols on a surface.",
+        example: "Please write your name here.",
+        translation: "Escrever"
+    },
+    {
+        word: "computer",
+        pronunciation: "/kəmˈpjuː.tər/",
+        partOfSpeech: "noun",
+        definition: "An electronic device for storing and processing data.",
+        example: "I work on my computer all day.",
+        translation: "Computador"
+    },
+    {
+        word: "phone",
+        pronunciation: "/fəʊn/",
+        partOfSpeech: "noun",
+        definition: "A telephone.",
+        example: "She is talking on the phone.",
+        translation: "Telefone"
     }
 ];
 
