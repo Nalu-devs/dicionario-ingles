@@ -517,6 +517,44 @@ function updateLoginUI() {
 
 let userWords = [];
 
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+function getWordOfTheDay() {
+    const today = new Date().toDateString();
+    const saved = localStorage.getItem('wordOfTheDay');
+    
+    if (saved) {
+        const data = JSON.parse(saved);
+        if (data.date === today) return data.word;
+    }
+    
+    const allWords = [...defaultDictionary, ...userWords];
+    const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+    localStorage.setItem('wordOfTheDay', JSON.stringify({
+        date: today,
+        word: randomWord.word
+    }));
+    return randomWord.word;
+}
+
+function showStats() {
+    const totalWords = dictionary.length;
+    const userAdded = userWords.length;
+    const defaultCount = defaultDictionary.length;
+    
+    return { totalWords, userAdded, defaultCount };
+}
+
 function loadUserWords() {
     const stored = localStorage.getItem('userWords');
     if (stored) {
@@ -697,25 +735,48 @@ function speakWord(text, rate = 1) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadTheme();
     checkLogin();
+    initDictionary();
+    renderEntries(dictionary);
     
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const addWordForm = document.getElementById('addWordForm');
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
     const clearAllBtn = document.getElementById('clearAllBtn');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const themeToggle = document.getElementById('themeToggle');
     
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportWords);
+    if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
     }
     
-    if (importFile) {
-        importFile.addEventListener('change', importWords);
+    if (addWordForm) {
+        addWordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newEntry = {
+                word: document.getElementById('newWord').value.toLowerCase(),
+                pronunciation: document.getElementById('newPronunciation').value,
+                partOfSpeech: document.getElementById('newPartOfSpeech').value,
+                definition: document.getElementById('newDefinition').value,
+                example: document.getElementById('newExample').value,
+                translation: document.getElementById('newTranslation').value
+            };
+            addWord(newEntry);
+            e.target.reset();
+            alert('Word added successfully!');
+        });
     }
     
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', clearAllWords);
-    }
+    if (exportBtn) exportBtn.addEventListener('click', exportWords);
+    if (importFile) importFile.addEventListener('change', importWords);
+    if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllWords);
     
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
@@ -730,7 +791,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            toggleTheme();
+            themeToggle.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+        });
+        themeToggle.textContent = localStorage.getItem('theme') === 'dark' ? '☀️' : '🌙';
+    }
+    
+    const wordOfDayEl = document.getElementById('wordOfDay');
+    if (wordOfDayEl) {
+        const word = getWordOfTheDay();
+        const entry = dictionary.find(e => e.word === word);
+        if (entry) {
+            wordOfDayEl.innerHTML = `
+                <h3>Word of the Day</h3>
+                <div class="word-header">
+                    <span class="word">${escapeHtml(entry.word)}</span>
+                    <span class="pronunciation">${escapeHtml(entry.pronunciation)}</span>
+                </div>
+                <div class="part-of-speech">${escapeHtml(entry.partOfSpeech)}</div>
+                <div class="definition"><p>${escapeHtml(entry.definition)}</p></div>
+                <div class="translation">${escapeHtml(entry.translation)}</div>
+            `;
+        }
+    }
+    
+    const statsEl = document.getElementById('stats');
+    if (statsEl) {
+        const stats = showStats();
+        statsEl.innerHTML = `
+            <div class="stat-item">
+                <div class="stat-number">${stats.totalWords}</div>
+                <div class="stat-label">Total Words</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">${stats.defaultCount}</div>
+                <div class="stat-label">Default Words</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">${stats.userAdded}</div>
+                <div class="stat-label">Your Words</div>
+            </div>
+        `;
     }
 });
