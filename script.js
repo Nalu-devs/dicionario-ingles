@@ -880,6 +880,124 @@ function showPronunciationTooltip(element, pronunciation) {
     setTimeout(() => tooltip.remove(), 2000);
 }
 
+let userNotes = {};
+
+function loadNotes() {
+    const stored = localStorage.getItem('userNotes');
+    if (stored) {
+        userNotes = JSON.parse(stored);
+    }
+}
+
+function saveNote(word, note) {
+    if (!userNotes[word]) userNotes[word] = '';
+    userNotes[word] = note;
+    localStorage.setItem('userNotes', JSON.stringify(userNotes));
+}
+
+function getNote(word) {
+    return userNotes[word] || '';
+}
+
+let achievements = [];
+
+function loadAchievements() {
+    const stored = localStorage.getItem('achievements');
+    if (stored) {
+        achievements = JSON.parse(stored);
+    }
+}
+
+function unlockAchievement(name, description) {
+    if (!achievements.find(a => a.name === name)) {
+        achievements.push({ name, description, date: new Date().toLocaleDateString() });
+        localStorage.setItem('achievements', JSON.stringify(achievements));
+        alert(`🏆 Achievement Unlocked: ${name}!`);
+    }
+}
+
+function checkAchievements() {
+    if (favorites.length >= 5) unlockAchievement('Word Collector', 'Favorite 5 words');
+    if (Object.keys(userNotes).length >= 3) unlockAchievement('Note Taker', 'Add notes to 3 words');
+    if (quizStats.correct >= 10) unlockAchievement('Quiz Master', 'Get 10 quiz answers correct');
+    if (userWords.length >= 10) unlockAchievement('Contributor', 'Add 10 words to dictionary');
+}
+
+let flashcardIndex = 0;
+let flashcardMode = false;
+
+function startFlashcards() {
+    if (dictionary.length === 0) {
+        alert('No words available for flashcards!');
+        return;
+    }
+    
+    flashcardMode = true;
+    flashcardIndex = 0;
+    
+    showFlashcard();
+}
+
+function showFlashcard() {
+    const container = document.getElementById('entries');
+    if (!container || !flashcardMode) return;
+    
+    const entry = dictionary[flashcardIndex];
+    const note = getNote(entry.word);
+    
+    container.innerHTML = `
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-front">
+                    <h2>${escapeHtml(entry.word)}</h2>
+                    <p class="pronunciation">${escapeHtml(entry.pronunciation)}</p>
+                    <p class="hint">Click to reveal translation</p>
+                </div>
+                <div class="flashcard-back" style="display:none;">
+                    <h3>${escapeHtml(entry.translation)}</h3>
+                    <p><strong>Definition:</strong> ${escapeHtml(entry.definition)}</p>
+                    <p><strong>Example:</strong> ${escapeHtml(entry.example)}</p>
+                    ${note ? `<p><strong>Note:</strong> ${escapeHtml(note)}</p>` : ''}
+                </div>
+            </div>
+            <div class="flashcard-controls">
+                <button id="prevCard" class="btn">Previous</button>
+                <span class="card-counter">${flashcardIndex + 1}/${dictionary.length}</span>
+                <button id="nextCard" class="btn">Next</button>
+            </div>
+            <button id="exitFlashcard" class="btn clear-all-btn">Exit Flashcards</button>
+        </div>
+    `;
+    
+    const flashcard = document.getElementById('flashcard');
+    flashcard.addEventListener('click', () => {
+        const front = flashcard.querySelector('.flashcard-front');
+        const back = flashcard.querySelector('.flashcard-back');
+        if (front.style.display !== 'none') {
+            front.style.display = 'none';
+            back.style.display = 'block';
+        } else {
+            front.style.display = 'block';
+            back.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('prevCard')?.addEventListener('click', () => {
+        flashcardIndex = (flashcardIndex - 1 + dictionary.length) % dictionary.length;
+        showFlashcard();
+    });
+    
+    document.getElementById('nextCard')?.addEventListener('click', () => {
+        flashcardIndex = (flashcardIndex + 1) % dictionary.length;
+        showFlashcard();
+    });
+    
+    document.getElementById('exitFlashcard')?.addEventListener('click', () => {
+        flashcardMode = false;
+        handleSearch();
+    });
+}
+
 function updateRecentSearchesUI() {
     const container = document.getElementById('recentSearches');
     if (!container) return;
