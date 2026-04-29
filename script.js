@@ -556,6 +556,46 @@ function showStats() {
 }
 
 let favorites = [];
+let wordTags = {};
+
+function loadTags() {
+    const stored = localStorage.getItem('wordTags');
+    if (stored) {
+        wordTags = JSON.parse(stored);
+    }
+}
+
+function addTag(word, tag) {
+    if (!wordTags[word]) wordTags[word] = [];
+    if (!wordTags[word].includes(tag)) {
+        wordTags[word].push(tag);
+        localStorage.setItem('wordTags', JSON.stringify(wordTags));
+    }
+}
+
+function removeTag(word, tag) {
+    if (wordTags[word]) {
+        wordTags[word] = wordTags[word].filter(t => t !== tag);
+        localStorage.setItem('wordTags', JSON.stringify(wordTags));
+    }
+}
+
+function getTags(word) {
+    return wordTags[word] || [];
+}
+
+function filterByTag(entries, tag) {
+    if (!tag || tag === 'all') return entries;
+    return entries.filter(entry => wordTags[entry.word] && wordTags[entry.word].includes(tag));
+}
+
+function getAllTags() {
+    const tags = new Set();
+    Object.values(wordTags).forEach(tagList => {
+        tagList.forEach(tag => tags.add(tag));
+    });
+    return Array.from(tags);
+}
 
 function loadFavorites() {
     const stored = localStorage.getItem('favorites');
@@ -692,6 +732,102 @@ function editWord(oldWord, newEntry) {
     return false;
 }
 
+function printEntries() {
+    const container = document.getElementById('entries');
+    if (!container) return;
+    
+    const printWindow = window.open('', '_blank');
+    const entries = container.innerHTML;
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dictionary Print</title>
+            <link rel="stylesheet" href="style.css">
+            <style>
+                body { padding: 20px; }
+                .entry { page-break-inside: avoid; }
+                .play-btn, .delete-btn, .fav-btn, .speed-select, .audio-controls { display: none; }
+            </style>
+        </head>
+        <body>
+            <h1>English Dictionary</h1>
+            ${entries}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
+}
+
+let quizStats = { total: 0, correct: 0 };
+
+function updateQuizStats(correct) {
+    quizStats.total++;
+    if (correct) quizStats.correct++;
+    localStorage.setItem('quizStats', JSON.stringify(quizStats));
+}
+
+function loadQuizStats() {
+    const stored = localStorage.getItem('quizStats');
+    if (stored) {
+        quizStats = JSON.parse(stored);
+    }
+}
+
+function showQuizProgress() {
+    loadQuizStats();
+    const accuracy = quizStats.total > 0 ? Math.round((quizStats.correct / quizStats.total) * 100) : 0;
+    return `Quiz Progress: ${quizStats.correct}/${quizStats.total} (${accuracy}%)`;
+}
+
+function shareWord(word) {
+    const entry = dictionary.find(e => e.word === word);
+    if (!entry) return;
+    
+    const text = `Check out this word: ${entry.word} (${entry.pronunciation}) - ${entry.translation}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `Dictionary: ${entry.word}`,
+            text: text,
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Word info copied to clipboard!');
+        });
+    }
+}
+
+function showPronunciationTooltip(element, pronunciation) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'pronunciation-tooltip';
+    tooltip.textContent = pronunciation;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: var(--secondary);
+        color: white;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        z-index: 1000;
+        pointer-events: none;
+    `;
+    
+    document.body.appendChild(tooltip);
+    
+    const rect = element.getBoundingClientRect();
+    tooltip.style.left = rect.left + 'px';
+    tooltip.style.top = (rect.bottom + 5) + 'px';
+    
+    setTimeout(() => tooltip.remove(), 2000);
+}
+
 function updateRecentSearchesUI() {
     const container = document.getElementById('recentSearches');
     if (!container) return;
@@ -709,6 +845,40 @@ function updateRecentSearchesUI() {
         });
         container.appendChild(span);
     });
+}
+
+function showAutocomplete(query) {
+    const suggestionBox = document.getElementById('autocomplete');
+    if (!suggestionBox) return;
+    
+    if (!query || query.length < 2) {
+        suggestionBox.style.display = 'none';
+        return;
+    }
+    
+    const suggestions = dictionary.filter(entry => 
+        entry.word.toLowerCase().startsWith(query.toLowerCase())
+    ).slice(0, 5);
+    
+    if (suggestions.length === 0) {
+        suggestionBox.style.display = 'none';
+        return;
+    }
+    
+    suggestionBox.innerHTML = '';
+    suggestions.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-item';
+        div.textContent = `${entry.word} - ${entry.translation}`;
+        div.addEventListener('click', () => {
+            document.getElementById('searchInput').value = entry.word;
+            suggestionBox.style.display = 'none';
+            handleSearch();
+        });
+        suggestionBox.appendChild(div);
+    });
+    
+    suggestionBox.style.display = 'block';
 }
 
 function loadUserWords() {
@@ -745,6 +915,9 @@ function createEntryElement(entry) {
     div.className = 'entry';
     const deleteBtn = entry.isUserAdded ? `<button class="delete-btn" data-word="${escapeHtml(entry.word)}" title="Delete">&#10006;</button>` : '';
     const favBtn = isFavorite(entry.word) ? '★' : '☆';
+    const tags = getTags(entry.word);
+    const tagsHtml = tags.length > 0 ? `<div class="tags">${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : '';
+    
     div.innerHTML = `
         <div class="word-header">
             <span class="word">${highlightText(entry.word, currentQuery)}</span>
@@ -769,6 +942,7 @@ function createEntryElement(entry) {
             </p>
         </div>
         <div class="translation">${highlightText(entry.translation, currentQuery)}</div>
+        ${tagsHtml}
     `;
     return div;
 }
@@ -926,6 +1100,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
     loadFavorites();
     loadRecentSearches();
+    loadTags();
+    loadQuizStats();
     checkLogin();
     initDictionary();
     renderEntries(sortEntries(dictionary, 'alphabetical'));
@@ -945,11 +1121,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortFilter = document.getElementById('sortFilter');
     const randomWordBtn = document.getElementById('randomWordBtn');
     const quizBtn = document.getElementById('quizBtn');
+    const printBtn = document.getElementById('printBtn');
     
     if (searchBtn && searchInput) {
         searchBtn.addEventListener('click', handleSearch);
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
+        });
+        searchInput.addEventListener('input', (e) => {
+            showAutocomplete(e.target.value);
+        });
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                const suggestionBox = document.getElementById('autocomplete');
+                if (suggestionBox) suggestionBox.style.display = 'none';
+            }, 200);
         });
     }
     
@@ -973,7 +1159,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (quizBtn) {
-        quizBtn.addEventListener('click', startQuiz);
+        quizBtn.addEventListener('click', () => {
+            startQuiz();
+            const quizProgress = document.getElementById('quizProgress');
+            if (quizProgress) quizProgress.textContent = showQuizProgress();
+        });
+    }
+    
+    if (printBtn) {
+        printBtn.addEventListener('click', printEntries);
     }
     
     if (addWordForm) {
@@ -1055,5 +1249,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="stat-label">Your Words</div>
             </div>
         `;
+    }
+    
+    const quizProgress = document.getElementById('quizProgress');
+    if (quizProgress) {
+        quizProgress.textContent = showQuizProgress();
     }
 });
