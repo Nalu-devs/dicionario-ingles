@@ -37,6 +37,31 @@
             <input type="text" id="searchInput" placeholder="Enter a word...">
             <button id="searchBtn">Search</button>
         </div>
+        <div class="filters">
+            <select id="posFilter">
+                <option value="all">All Parts of Speech</option>
+                <option value="noun">Noun</option>
+                <option value="verb">Verb</option>
+                <option value="adjective">Adjective</option>
+                <option value="adverb">Adverb</option>
+                <option value="exclamation">Exclamation</option>
+            </select>
+            <select id="viewFilter">
+                <option value="all">All Words</option>
+                <option value="favorites">Favorites</option>
+                <option value="recent">Recent Searches</option>
+            </select>
+            <select id="sortFilter">
+                <option value="alphabetical">A-Z</option>
+                <option value="reverse">Z-A</option>
+                <option value="recent">User Added First</option>
+            </select>
+        </div>
+        <div class="action-buttons">
+            <button id="randomWordBtn" class="btn">Random Word</button>
+            <button id="quizBtn" class="btn">Start Quiz</button>
+        </div>
+        <div class="recent-searches" id="recentSearches"></div>
     </div>
 
     <div class="word-of-day" id="wordOfDay"></div>

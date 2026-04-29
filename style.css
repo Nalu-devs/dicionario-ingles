@@ -519,6 +519,85 @@ mark {
     z-index: 1000;
 }
 
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.filters select {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-card);
+    color: var(--text-light);
+}
+
+.recent-searches {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.recent-searches span {
+    display: inline-block;
+    background: var(--secondary);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    margin: 0.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.fav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--accent);
+    margin-left: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.quiz-container {
+    background: var(--bg-card);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.quiz-option {
+    padding: 0.8rem;
+    border: 1px solid var(--border);
+    background: var(--bg-dark);
+    color: var(--text-light);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quiz-option:hover {
+    background: var(--secondary);
+}
+
 @media (max-width: 600px) {
     .search-container {
         margin: 1rem;

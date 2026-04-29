@@ -555,6 +555,162 @@ function showStats() {
     return { totalWords, userAdded, defaultCount };
 }
 
+let favorites = [];
+
+function loadFavorites() {
+    const stored = localStorage.getItem('favorites');
+    if (stored) {
+        favorites = JSON.parse(stored);
+    }
+}
+
+function toggleFavorite(word) {
+    const index = favorites.indexOf(word);
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(word);
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderEntries(filterEntries(document.getElementById('searchInput')?.value || ''));
+}
+
+function isFavorite(word) {
+    return favorites.includes(word);
+}
+
+let recentSearches = [];
+
+function addToRecentSearches(query) {
+    if (!query || query.trim() === '') return;
+    recentSearches = recentSearches.filter(q => q !== query);
+    recentSearches.unshift(query);
+    if (recentSearches.length > 5) recentSearches.pop();
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+}
+
+function loadRecentSearches() {
+    const stored = localStorage.getItem('recentSearches');
+    if (stored) {
+        recentSearches = JSON.parse(stored);
+    }
+}
+
+function filterByPartOfSpeech(entries, pos) {
+    if (!pos || pos === 'all') return entries;
+    return entries.filter(entry => entry.partOfSpeech === pos);
+}
+
+function getRandomWord() {
+    const allWords = [...dictionary];
+    return allWords[Math.floor(Math.random() * allWords.length)];
+}
+
+let currentSort = 'alphabetical';
+
+function sortEntries(entries, sortBy) {
+    currentSort = sortBy;
+    switch(sortBy) {
+        case 'alphabetical':
+            return entries.sort((a, b) => a.word.localeCompare(b.word));
+        case 'reverse':
+            return entries.sort((a, b) => b.word.localeCompare(a.word));
+        case 'recent':
+            return entries.sort((a, b) => {
+                if (a.isUserAdded && !b.isUserAdded) return -1;
+                if (!a.isUserAdded && b.isUserAdded) return 1;
+                return a.word.localeCompare(b.word);
+            });
+        default:
+            return entries;
+    }
+}
+
+function startQuiz() {
+    if (dictionary.length < 4) {
+        alert('Need at least 4 words to start a quiz!');
+        return;
+    }
+    
+    const correctWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+    const options = [correctWord];
+    
+    while (options.length < 4) {
+        const randomWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+        if (!options.find(o => o.word === randomWord.word)) {
+            options.push(randomWord);
+        }
+    }
+    
+    const shuffled = options.sort(() => Math.random() - 0.5);
+    
+    const quizHtml = `
+        <div class="quiz-container">
+            <h3>Quiz: What is the translation of "${correctWord.word}"?</h3>
+            <div class="quiz-options">
+                ${shuffled.map(opt => `
+                    <button class="quiz-option" data-correct="${opt.word === correctWord.word}">${escapeHtml(opt.translation)}</button>
+                `).join('')}
+            </div>
+            <div class="quiz-result" id="quizResult"></div>
+            <button id="nextQuiz" class="btn">Next Question</button>
+        </div>
+    `;
+    
+    const container = document.getElementById('entries');
+    if (container) {
+        container.innerHTML = quizHtml;
+        
+        container.querySelectorAll('.quiz-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const result = document.getElementById('quizResult');
+                if (e.target.dataset.correct === 'true') {
+                    result.innerHTML = '<p style="color: green;">Correct! ✓</p>';
+                    e.target.style.background = 'green';
+                } else {
+                    result.innerHTML = `<p style="color: red;">Wrong! The correct answer is: ${escapeHtml(correctWord.translation)}</p>`;
+                    e.target.style.background = 'red';
+                }
+            });
+        });
+        
+        document.getElementById('nextQuiz')?.addEventListener('click', () => {
+            startQuiz();
+        });
+    }
+}
+
+function editWord(oldWord, newEntry) {
+    const index = userWords.findIndex(item => item.word === oldWord);
+    if (index > -1) {
+        newEntry.isUserAdded = true;
+        userWords[index] = newEntry;
+        saveDictionary(userWords);
+        initDictionary();
+        return true;
+    }
+    return false;
+}
+
+function updateRecentSearchesUI() {
+    const container = document.getElementById('recentSearches');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (recentSearches.length === 0) return;
+    
+    container.innerHTML = '<small>Recent: </small>';
+    recentSearches.forEach(search => {
+        const span = document.createElement('span');
+        span.textContent = search;
+        span.addEventListener('click', () => {
+            document.getElementById('searchInput').value = search;
+            handleSearch();
+        });
+        container.appendChild(span);
+    });
+}
+
 function loadUserWords() {
     const stored = localStorage.getItem('userWords');
     if (stored) {
@@ -588,10 +744,12 @@ function createEntryElement(entry) {
     const div = document.createElement('div');
     div.className = 'entry';
     const deleteBtn = entry.isUserAdded ? `<button class="delete-btn" data-word="${escapeHtml(entry.word)}" title="Delete">&#10006;</button>` : '';
+    const favBtn = isFavorite(entry.word) ? '★' : '☆';
     div.innerHTML = `
         <div class="word-header">
             <span class="word">${highlightText(entry.word, currentQuery)}</span>
             <span class="pronunciation">${highlightText(entry.pronunciation, currentQuery)}</span>
+            <button class="fav-btn" data-word="${escapeHtml(entry.word)}" title="Favorite">${favBtn}</button>
             ${deleteBtn}
         </div>
         <div class="audio-controls">
@@ -638,7 +796,31 @@ function filterEntries(query) {
 
 function handleSearch() {
     const query = document.getElementById('searchInput').value;
-    const filtered = filterEntries(query);
+    addToRecentSearches(query);
+    updateRecentSearchesUI();
+    
+    let filtered = filterEntries(query);
+    
+    const posFilter = document.getElementById('posFilter');
+    const viewFilter = document.getElementById('viewFilter');
+    
+    if (posFilter) {
+        filtered = filterByPartOfSpeech(filtered, posFilter.value);
+    }
+    
+    if (viewFilter && viewFilter.value === 'favorites') {
+        filtered = filtered.filter(entry => favorites.includes(entry.word));
+    } else if (viewFilter && viewFilter.value === 'recent') {
+        const recentEntries = [];
+        recentSearches.forEach(q => {
+            const found = dictionary.find(e => e.word.toLowerCase() === q.toLowerCase());
+            if (found && !recentEntries.find(r => r.word === found.word)) {
+                recentEntries.push(found);
+            }
+        });
+        filtered = recentEntries;
+    }
+    
     renderEntries(filtered);
     
     const container = document.getElementById('entries');
@@ -715,6 +897,12 @@ document.addEventListener('click', (e) => {
             initDictionary();
         }
     }
+    
+    if (e.target.classList.contains('fav-btn')) {
+        const word = e.target.dataset.word;
+        toggleFavorite(word);
+        e.target.textContent = isFavorite(word) ? '★' : '☆';
+    }
 });
 
 function speakWord(text, rate = 1) {
@@ -736,9 +924,12 @@ function speakWord(text, rate = 1) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
+    loadFavorites();
+    loadRecentSearches();
     checkLogin();
     initDictionary();
-    renderEntries(dictionary);
+    renderEntries(sortEntries(dictionary, 'alphabetical'));
+    updateRecentSearchesUI();
     
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -749,12 +940,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const themeToggle = document.getElementById('themeToggle');
+    const posFilter = document.getElementById('posFilter');
+    const viewFilter = document.getElementById('viewFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const randomWordBtn = document.getElementById('randomWordBtn');
+    const quizBtn = document.getElementById('quizBtn');
     
     if (searchBtn && searchInput) {
         searchBtn.addEventListener('click', handleSearch);
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
+    }
+    
+    if (posFilter) posFilter.addEventListener('change', handleSearch);
+    if (viewFilter) viewFilter.addEventListener('change', handleSearch);
+    if (sortFilter) {
+        sortFilter.addEventListener('change', () => {
+            const filtered = filterEntries(document.getElementById('searchInput')?.value || '');
+            renderEntries(sortEntries(filtered, sortFilter.value));
+        });
+    }
+    
+    if (randomWordBtn) {
+        randomWordBtn.addEventListener('click', () => {
+            const word = getRandomWord();
+            if (word) {
+                document.getElementById('searchInput').value = word.word;
+                handleSearch();
+            }
+        });
+    }
+    
+    if (quizBtn) {
+        quizBtn.addEventListener('click', startQuiz);
     }
     
     if (addWordForm) {
