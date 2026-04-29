@@ -642,6 +642,21 @@ mark {
     font-size: 0.8rem;
 }
 
+.share-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+#quizProgress {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
 @media (max-width: 600px) {
     .search-container {
         margin: 1rem;

@@ -707,6 +707,58 @@ function startQuiz() {
                 if (e.target.dataset.correct === 'true') {
                     result.innerHTML = '<p style="color: green;">Correct! ✓</p>';
                     e.target.style.background = 'green';
+                    updateQuizStats(true);
+                } else {
+                    result.innerHTML = `<p style="color: red;">Wrong! The correct answer is: ${escapeHtml(correctWord.translation)}</p>`;
+                    e.target.style.background = 'red';
+                    updateQuizStats(false);
+                }
+                const quizProgress = document.getElementById('quizProgress');
+                if (quizProgress) quizProgress.textContent = showQuizProgress();
+            });
+        });
+        
+        document.getElementById('nextQuiz')?.addEventListener('click', () => {
+            startQuiz();
+        });
+    }
+}
+    
+    const correctWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+    const options = [correctWord];
+    
+    while (options.length < 4) {
+        const randomWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+        if (!options.find(o => o.word === randomWord.word)) {
+            options.push(randomWord);
+        }
+    }
+    
+    const shuffled = options.sort(() => Math.random() - 0.5);
+    
+    const quizHtml = `
+        <div class="quiz-container">
+            <h3>Quiz: What is the translation of "${correctWord.word}"?</h3>
+            <div class="quiz-options">
+                ${shuffled.map(opt => `
+                    <button class="quiz-option" data-correct="${opt.word === correctWord.word}">${escapeHtml(opt.translation)}</button>
+                `).join('')}
+            </div>
+            <div class="quiz-result" id="quizResult"></div>
+            <button id="nextQuiz" class="btn">Next Question</button>
+        </div>
+    `;
+    
+    const container = document.getElementById('entries');
+    if (container) {
+        container.innerHTML = quizHtml;
+        
+        container.querySelectorAll('.quiz-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const result = document.getElementById('quizResult');
+                if (e.target.dataset.correct === 'true') {
+                    result.innerHTML = '<p style="color: green;">Correct! ✓</p>';
+                    e.target.style.background = 'green';
                 } else {
                     result.innerHTML = `<p style="color: red;">Wrong! The correct answer is: ${escapeHtml(correctWord.translation)}</p>`;
                     e.target.style.background = 'red';
@@ -921,8 +973,9 @@ function createEntryElement(entry) {
     div.innerHTML = `
         <div class="word-header">
             <span class="word">${highlightText(entry.word, currentQuery)}</span>
-            <span class="pronunciation">${highlightText(entry.pronunciation, currentQuery)}</span>
+            <span class="pronunciation" data-pronunciation="${escapeHtml(entry.pronunciation)}" title="Click for pronunciation guide">${highlightText(entry.pronunciation, currentQuery)}</span>
             <button class="fav-btn" data-word="${escapeHtml(entry.word)}" title="Favorite">${favBtn}</button>
+            <button class="share-btn" data-word="${escapeHtml(entry.word)}" title="Share">&#128279;</button>
             ${deleteBtn}
         </div>
         <div class="audio-controls">
@@ -1076,6 +1129,16 @@ document.addEventListener('click', (e) => {
         const word = e.target.dataset.word;
         toggleFavorite(word);
         e.target.textContent = isFavorite(word) ? '★' : '☆';
+    }
+    
+    if (e.target.classList.contains('share-btn')) {
+        const word = e.target.dataset.word;
+        shareWord(word);
+    }
+    
+    if (e.target.classList.contains('pronunciation')) {
+        const pronunciation = e.target.dataset.pronunciation;
+        showPronunciationTooltip(e.target, pronunciation);
     }
 });
 
