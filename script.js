@@ -1572,3 +1572,179 @@ const memoryGameBtn = document.getElementById('memoryGameBtn');
 if (memoryGameBtn) {
     memoryGameBtn.addEventListener('click', startMemoryGame);
 }
+
+let gameCanvas, gameCtx;
+let player = { x: 250, y: 250, size: 30, speed: 5, color: '#e94560' };
+let wordsOnMap = [];
+let gameScore = 0;
+let gameLives = 3;
+let currentWord = null;
+let gameRunning = false;
+let gameLoop;
+
+function startAdventureGame() {
+    if (dictionary.length < 5) {
+        alert('Need at least 5 words to play Word Adventure!');
+        return;
+    }
+
+    gameScore = 0;
+    gameLives = 3;
+    wordsOnMap = [];
+    gameRunning = true;
+    currentWord = null;
+
+    const container = document.getElementById('entries');
+    if (container) {
+        container.innerHTML = `
+            <div class="adventure-game-container">
+                <h2>Word Adventure - Collect words and translate them!</h2>
+                <div class="game-stats">
+                    <div>Score: <span id="gameScore">0</span></div>
+                    <div>Lives: <span id="gameLives">3</span></div>
+                </div>
+                <div class="game-message" id="gameMessage">Use arrow keys to move. Collect words!</div>
+                <div class="game-canvas-wrapper">
+                    <canvas id="gameCanvas" width="500" height="400"></canvas>
+                </div>
+                <div id="translationArea" style="display:none; margin-top:1rem;">
+                    <p id="wordToTranslate" style="font-size:1.2rem; margin-bottom:0.5rem;"></p>
+                    <input type="text" id="answerInput" placeholder="Type translation in Portuguese...">
+                    <button id="submitAnswer" class="btn">Submit</button>
+                </div>
+                <div class="game-instructions">
+                    Use arrow keys (↑↓←→) or WASD to move. Touch words to collect them, then type the correct translation.
+                </div>
+                <button id="restartAdventure" class="btn" style="margin-top:1rem;">Restart Game</button>
+            </div>
+        `;
+
+        gameCanvas = document.getElementById('gameCanvas');
+        gameCtx = gameCanvas.getContext('2d');
+
+        spawnWords();
+        setupGameControls();
+        gameLoop = setInterval(updateGame, 1000 / 60);
+
+        document.getElementById('restartAdventure').addEventListener('click', startAdventureGame);
+        document.getElementById('submitAnswer').addEventListener('click', checkTranslation);
+        document.getElementById('answerInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkTranslation();
+        });
+    }
+}
+
+function spawnWords() {
+    wordsOnMap = [];
+    const wordsToSpawn = dictionary.sort(() => Math.random() - 0.5).slice(0, 5);
+    
+    wordsToSpawn.forEach((word, i) => {
+        wordsOnMap.push({
+            word: word.word,
+            translation: word.translation,
+            x: 50 + (i * 90) % 400,
+            y: 50 + Math.floor(i / 4) * 100,
+            collected: false,
+            color: '#0984e3'
+        });
+    });
+}
+
+function setupGameControls() {
+    const keys = {};
+    
+    window.addEventListener('keydown', (e) => {
+        if (!gameRunning) return;
+        keys[e.key] = true;
+        
+        if (keys['ArrowUp'] || keys['w'] || keys['W']) player.y = Math.max(0, player.y - player.speed);
+        if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y = Math.min(370, player.y + player.speed);
+        if (keys['ArrowLeft'] || keys['a'] || keys['A']) player.x = Math.max(0, player.x - player.speed);
+        if (keys['ArrowRight'] || keys['d'] || keys['D']) player.x = Math.min(470, player.x + player.speed);
+    });
+    
+    window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+    });
+}
+
+function updateGame() {
+    if (!gameRunning) return;
+    
+    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    
+    wordsOnMap.forEach(word => {
+        if (!word.collected) {
+            gameCtx.fillStyle = word.color;
+            gameCtx.fillRect(word.x, word.y, 80, 30);
+            gameCtx.fillStyle = 'white';
+            gameCtx.font = '14px Arial';
+            gameCtx.fillText(word.word, word.x + 5, word.y + 20);
+            
+            if (player.x < word.x + 80 && player.x + player.size > word.x &&
+                player.y < word.y + 30 && player.y + player.size > word.y) {
+                word.collected = true;
+                currentWord = word;
+                document.getElementById('translationArea').style.display = 'block';
+                document.getElementById('wordToTranslate').textContent = `Translate: ${word.word}`;
+                document.getElementById('gameMessage').textContent = 'Type the translation in Portuguese!';
+                document.getElementById('answerInput').focus();
+            }
+        }
+    });
+    
+    gameCtx.fillStyle = player.color;
+    gameCtx.beginPath();
+    gameCtx.arc(player.x + player.size/2, player.y + player.size/2, player.size/2, 0, Math.PI * 2);
+    gameCtx.fill();
+    
+    gameCtx.fillStyle = 'white';
+    gameCtx.font = 'bold 16px Arial';
+    gameCtx.fillText('P', player.x + player.size/2 - 5, player.y + player.size/2 + 5);
+}
+
+function checkTranslation() {
+    if (!currentWord) return;
+    
+    const input = document.getElementById('answerInput');
+    const answer = input.value.trim().toLowerCase();
+    
+    if (answer === currentWord.translation.toLowerCase()) {
+        gameScore += 10;
+        document.getElementById('gameScore').textContent = gameScore;
+        document.getElementById('gameMessage').textContent = 'Correct! +10 points!';
+        document.getElementById('gameMessage').style.color = '#00b894';
+    } else {
+        gameLives--;
+        document.getElementById('gameLives').textContent = gameLives;
+        document.getElementById('gameMessage').textContent = `Wrong! Correct: ${currentWord.translation}`;
+        document.getElementById('gameMessage').style.color = '#e94560';
+        
+        if (gameLives <= 0) {
+            endGame();
+            return;
+        }
+    }
+    
+    currentWord = null;
+    document.getElementById('translationArea').style.display = 'none';
+    input.value = '';
+    
+    if (wordsOnMap.every(w => w.collected)) {
+        spawnWords();
+        document.getElementById('gameMessage').textContent = 'New words appeared!';
+        document.getElementById('gameMessage').style.color = '#0984e3';
+    }
+}
+
+function endGame() {
+    gameRunning = false;
+    clearInterval(gameLoop);
+    document.getElementById('gameMessage').textContent = `Game Over! Final Score: ${gameScore}`;
+    document.getElementById('gameMessage').style.color = '#e94560';
+}
+
+const adventureGameBtn = document.getElementById('adventureGameBtn');
+if (adventureGameBtn) {
+    adventureGameBtn.addEventListener('click', startAdventureGame);
+}
