@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Word - English Dictionary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">English<span>Dictionary</span></div>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="dictionary.html">Dictionary</a>
+        <a href="add.html">Add Word</a>
+    </nav>
+
+    <div id="loginSection" class="login-container">
+        <h3>Login</h3>
+        <input type="text" id="username" placeholder="Username" class="login-input">
+        <input type="password" id="password" placeholder="Password" class="login-input">
+        <button id="loginBtn" class="btn">Login</button>
+    </div>
+
+    <div id="userInfo" class="user-info" style="display: none;">
+        <span>Welcome, <span class="username"></span>!</span>
+        <button id="logoutBtn" class="btn clear-all-btn">Logout</button>
+    </div>
+
+    <main>
+        <section class="add-word-section">
+            <h2>Add New Word</h2>
+            <form id="addWordForm">
+                <div class="form-group">
+                    <label for="newWord">Word</label>
+                    <input type="text" id="newWord" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPronunciation">Pronunciation (IPA)</label>
+                    <input type="text" id="newPronunciation" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPartOfSpeech">Part of Speech</label>
+                    <select id="newPartOfSpeech" required>
+                        <option value="noun">noun</option>
+                        <option value="verb">verb</option>
+                        <option value="adjective">adjective</option>
+                        <option value="adverb">adverb</option>
+                        <option value="exclamation">exclamation</option>
+                        <option value="preposition">preposition</option>
+                        <option value="conjunction">conjunction</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newDefinition">Definition</label>
+                    <textarea id="newDefinition" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="newExample">Example</label>
+                    <input type="text" id="newExample" required>
+                </div>
+                <div class="form-group">
+                    <label for="newTranslation">Translation (Portuguese)</label>
+                    <input type="text" id="newTranslation" required>
+                </div>
+                <button type="submit">Add Word</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 English Dictionary. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
