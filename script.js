@@ -1475,3 +1475,100 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+let memoryCards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let memoryMoves = 0;
+let memoryGameActive = false;
+
+function startMemoryGame() {
+    if (dictionary.length < 4) {
+        alert('Need at least 4 words to play Memory Game!');
+        return;
+    }
+
+    memoryGameActive = true;
+    matchedPairs = 0;
+    memoryMoves = 0;
+    flippedCards = [];
+
+    const shuffled = [...dictionary].sort(() => Math.random() - 0.5).slice(0, 8);
+    memoryCards = [];
+
+    shuffled.forEach(word => {
+        memoryCards.push({ id: word.word + '-en', text: word.word, type: 'english', pairId: word.word });
+        memoryCards.push({ id: word.word + '-pt', text: word.translation, type: 'portuguese', pairId: word.word });
+    });
+
+    memoryCards.sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('entries');
+    if (container) {
+        container.innerHTML = `
+            <div class="memory-game-container">
+                <h2>Memory Game - Match English words with Portuguese translations</h2>
+                <div class="memory-stats">
+                    <div>Moves: <span id="memoryMoves">0</span></div>
+                    <div>Pairs: <span id="memoryPairs">0</span>/8</div>
+                </div>
+                <div class="memory-grid" id="memoryGrid"></div>
+                <button id="restartMemory" class="btn">Restart Game</button>
+            </div>
+        `;
+
+        const grid = document.getElementById('memoryGrid');
+        memoryCards.forEach(card => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'memory-card';
+            cardEl.dataset.id = card.id;
+            cardEl.dataset.pairId = card.pairId;
+            cardEl.textContent = card.text;
+            cardEl.addEventListener('click', () => flipMemoryCard(cardEl));
+            grid.appendChild(cardEl);
+        });
+
+        document.getElementById('restartMemory').addEventListener('click', startMemoryGame);
+    }
+}
+
+function flipMemoryCard(cardEl) {
+    if (!memoryGameActive) return;
+    if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+    if (flippedCards.length >= 2) return;
+
+    cardEl.classList.add('flipped');
+    flippedCards.push(cardEl);
+
+    if (flippedCards.length === 2) {
+        memoryMoves++;
+        document.getElementById('memoryMoves').textContent = memoryMoves;
+
+        const [card1, card2] = flippedCards;
+
+        if (card1.dataset.pairId === card2.dataset.pairId) {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            matchedPairs++;
+            document.getElementById('memoryPairs').textContent = matchedPairs;
+            flippedCards = [];
+
+            if (matchedPairs === 8) {
+                setTimeout(() => {
+                    alert(`Congratulations! You won in ${memoryMoves} moves!`);
+                    memoryGameActive = false;
+                }, 500);
+            }
+        } else {
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                flippedCards = [];
+            }, 1000);
+        }
+    }
+}
+
+const memoryGameBtn = document.getElementById('memoryGameBtn');
+if (memoryGameBtn) {
+    memoryGameBtn.addEventListener('click', startMemoryGame);
+}

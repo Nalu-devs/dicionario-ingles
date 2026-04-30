@@ -808,3 +808,71 @@ mark {
 .btn:hover {
     background: var(--accent);
 }
+
+.memory-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    background: var(--secondary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 0.5rem;
+    transition: transform 0.3s ease, background 0.3s ease;
+    color: transparent;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.memory-card.flipped {
+    background: var(--bg-card);
+    color: var(--text-light);
+    transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+    background: var(--accent);
+    color: white;
+    cursor: default;
+}
+
+.memory-stats {
+    display: flex;
+    gap: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-light);
+}
+
+.memory-stats span {
+    font-weight: bold;
+    color: var(--accent);
+}
+
+#restartMemory {
+    margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+    .memory-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
