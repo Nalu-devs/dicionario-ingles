@@ -1087,6 +1087,8 @@ function createEntryElement(entry) {
     const favBtn = isFavorite(entry.word) ? '★' : '☆';
     const tags = getTags(entry.word);
     const tagsHtml = tags.length > 0 ? `<div class="tags">${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : '';
+    const note = getNote(entry.word);
+    const noteHtml = note ? `<div class="note"><strong>Note:</strong> ${escapeHtml(note)}<button class="edit-note-btn" data-word="${escapeHtml(entry.word)}">Edit</button></div>` : `<button class="add-note-btn" data-word="${escapeHtml(entry.word)}">+ Add Note</button>`;
     
     div.innerHTML = `
         <div class="word-header">
@@ -1114,6 +1116,7 @@ function createEntryElement(entry) {
         </div>
         <div class="translation">${highlightText(entry.translation, currentQuery)}</div>
         ${tagsHtml}
+        ${noteHtml}
     `;
     return div;
 }
@@ -1258,6 +1261,16 @@ document.addEventListener('click', (e) => {
         const pronunciation = e.target.dataset.pronunciation;
         showPronunciationTooltip(e.target, pronunciation);
     }
+    
+    if (e.target.classList.contains('add-note-btn') || e.target.classList.contains('edit-note-btn')) {
+        const word = e.target.dataset.word;
+        const note = prompt('Add a note for this word:', getNote(word));
+        if (note !== null) {
+            saveNote(word, note);
+            checkAchievements();
+            renderEntries(filterEntries(document.getElementById('searchInput')?.value || ''));
+        }
+    }
 });
 
 function speakWord(text, rate = 1) {
@@ -1282,11 +1295,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFavorites();
     loadRecentSearches();
     loadTags();
+    loadNotes();
+    loadAchievements();
     loadQuizStats();
     checkLogin();
     initDictionary();
     renderEntries(sortEntries(dictionary, 'alphabetical'));
     updateRecentSearchesUI();
+    checkAchievements();
     
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -1303,6 +1319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomWordBtn = document.getElementById('randomWordBtn');
     const quizBtn = document.getElementById('quizBtn');
     const printBtn = document.getElementById('printBtn');
+    const flashcardBtn = document.getElementById('flashcardBtn');
     
     if (searchBtn && searchInput) {
         searchBtn.addEventListener('click', handleSearch);
@@ -1351,6 +1368,10 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', printEntries);
     }
     
+    if (flashcardBtn) {
+        flashcardBtn.addEventListener('click', startFlashcards);
+    }
+    
     if (addWordForm) {
         addWordForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -1364,6 +1385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             addWord(newEntry);
             e.target.reset();
+            checkAchievements();
             alert('Word added successfully!');
         });
     }
@@ -1435,5 +1457,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizProgress = document.getElementById('quizProgress');
     if (quizProgress) {
         quizProgress.textContent = showQuizProgress();
+    }
+    
+    const achievementsEl = document.getElementById('achievements');
+    if (achievementsEl) {
+        if (achievements.length === 0) {
+            achievementsEl.innerHTML = '<p style="text-align:center; color: var(--text-muted);">No achievements yet. Keep learning!</p>';
+        } else {
+            achievementsEl.innerHTML = '<h3>Achievements</h3>' + 
+                achievements.map(a => `
+                    <div class="achievement">
+                        <div class="achievement-name">🏆 ${a.name}</div>
+                        <div>${a.description}</div>
+                        <div class="achievement-date">${a.date}</div>
+                    </div>
+                `).join('');
+        }
     }
 });
